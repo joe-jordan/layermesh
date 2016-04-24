@@ -1,0 +1,36 @@
+#! /usr/bin/env python2.7
+
+import glob, os, os.path, sys
+
+valgrind = False
+if sys.argv[1:] and sys.argv[1] == "--valgrind":
+    valgrind = True
+
+search_path = os.path.join(os.path.dirname(__file__),
+                           "build",
+                           "test",
+                           "bin",
+                           "test_*")
+
+run = []
+
+for test in glob.glob(search_path):
+    if valgrind:
+        test = "valgrind %s" % test
+    run.append((test, os.system(test) == 0))
+
+successes = 0
+failures = []
+for test, passed in run:
+    if passed:
+        successes += 1
+    else:
+        failures.append(test)
+
+if failures:
+    print "FAILED TESTS:\n" + "\n".join(failures)
+
+print "%s passed tests" % successes
+
+exit(len(failures))
+
