@@ -3,7 +3,7 @@ default: check
 
 # Compiler options
 LINK_LIBRARIES=
-CC=g++
+CC=g++ -std=c++11
 CXXFLAGS=-Wall -Werror
 
 # Build directories
@@ -26,17 +26,22 @@ OBJECTS=$(SOURCES:src/%.cpp=build/%.o)
 .PHONY: compile
 compile: build $(OBJECTS)
 
-# Unit tests
-TEST_SOURCES=$(wildcard test/*.cpp)
-TEST_OBJECTS=$(TEST_SOURCES:test/%.cpp=build/test/%.o)
-DUT_OBJECTS=$(TEST_OBJECTS:build/test/test_%.o=build/%.o)
-TEST_PROGRAMS=$(TEST_OBJECTS:build/test/%.o=build/test/bin/%)
+# Unit tests (written out manually because of interdependecy)
+TEST_SOURCES=test/test_gvec.cpp test/test_hull.cpp
+TEST_OBJECTS=build/test/test_gvec.o build/test/test_hull.cpp
+TEST_PROGRAMS=build/test/bin/test_gvec build/test/bin/test_hull
 TEST_LINK_LIBRARIES=-lcheck
 
-build/test/test_%.o: test/test_%.cpp include/%.hpp
+build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
 
-build/test/bin/test_%: build/test/test_%.o build/%.o
+build/test/bin/test_gvec: build/test/test_gvec.o build/gvec.o
+	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
+
+build/test/test_hull.o: test/test_hull.cpp include/hull.hpp include/gvec.hpp
+	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
+
+build/test/bin/test_hull: build/test/test_hull.o build/gvec.o
 	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
 
 .PHONY: check
@@ -52,5 +57,5 @@ clean:
 	rm -Rf build
 
 # Hack to stop make deleting intermediate files:
-.SECONDARY: $(OBJECTS) $(TEST_OBJECTS)
+.SECONDARY: $(OBJECTS) $(TEST_OBJECTS) $(TEST_HO_OBJECTS)
 
