@@ -16,7 +16,7 @@ run = []
 
 for test in glob.glob(search_path):
     if valgrind:
-        test = "valgrind %s" % test
+        test = "CK_FORK=no valgrind %s" % test
     run.append((test, os.system(test) == 0))
 
 successes = 0
