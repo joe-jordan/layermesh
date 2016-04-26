@@ -21,8 +21,6 @@
 #define __LAYERMESH_HULL_HPP__
 
 #include <gvec.hpp>
-#include <vector>
-#include <memory>
 
 namespace layermesh {
 
@@ -40,7 +38,7 @@ namespace layermesh {
       // Return is a REFERENCE. If there is any computation to be done to
       // obtain the vector, it should be done once and the result cached on
       // the instance for future accesses by the same method.
-      virtual std::shared_ptr<std::vector<gvec> > point_cloud() = 0;
+      virtual memsafe_gvec_list point_cloud() = 0;
       // The starting index of the optional internal points. If no internal
       // points were required, should return == point_cloud().size().
       virtual unsigned internal_points_start_index() = 0;

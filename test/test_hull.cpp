@@ -21,27 +21,28 @@
 #include <check.h>
 #include <hull.hpp>
 
-class Tetrahedron : layermesh::IConvexHull {
+using namespace std;
+using namespace layermesh;
+
+class Tetrahedron : IConvexHull {
   private:
-    std::vector<layermesh::gvec> points;
+    gvec_list points;
   public:
-    Tetrahedron(std::vector<layermesh::gvec> points) : points(points) {
+    Tetrahedron(gvec_list points) : points(points) {
       if (points.size() != 4) {
-        throw std::invalid_argument("A tetrahedron has four points.");
+        throw invalid_argument("A tetrahedron has four points.");
       }
     };
     virtual ~Tetrahedron() {};
-    virtual std::shared_ptr<std::vector<layermesh::gvec> > point_cloud();
+    virtual memsafe_gvec_list point_cloud();
     virtual unsigned internal_points_start_index();
-    virtual layermesh::gsphere get_boundary();
+    virtual gsphere get_boundary();
 };
 
-std::shared_ptr<std::vector<layermesh::gvec> > Tetrahedron::point_cloud() {
+memsafe_gvec_list Tetrahedron::point_cloud() {
   unsigned i;
-  std::shared_ptr<std::vector<layermesh::gvec> > ptr =
-    std::make_shared<std::vector<layermesh::gvec> >();
-  std::vector<layermesh::gvec>* point_cloud = ptr.get();
-  layermesh::gvec centroid;
+  memsafe_gvec_list point_cloud = make_shared<gvec_list>();
+  gvec centroid;
 
   for (i = 0; i < 4; ++i) {
     point_cloud->push_back(points[i]);
@@ -52,17 +53,17 @@ std::shared_ptr<std::vector<layermesh::gvec> > Tetrahedron::point_cloud() {
   // correctly, but we provide one anyway for testing purposes.)
   point_cloud->push_back(centroid / 4);
 
-  return ptr;
+  return point_cloud;
 }
 
 unsigned Tetrahedron::internal_points_start_index() {
   return 4;
 }
 
-layermesh::gsphere Tetrahedron::get_boundary() {
-  layermesh::gsphere ret;
+gsphere Tetrahedron::get_boundary() {
+  gsphere ret;
 
-  ret.centre = (*(point_cloud().get()))[internal_points_start_index()];
+  ret.centre = (*point_cloud())[internal_points_start_index()];
 
   ret.radius = 0.0;
   unsigned i;
@@ -79,13 +80,45 @@ layermesh::gsphere Tetrahedron::get_boundary() {
 }
 
 START_TEST(test_can_derive_class) {
-  std::vector<layermesh::gvec> points;
-  points.push_back(layermesh::gvec(1.2, 3.4, 5.6));
-  points.push_back(layermesh::gvec(-0.2, 13.4, -6.5));
-  points.push_back(layermesh::gvec(7.7, 4.4, 9.2));
-  points.push_back(layermesh::gvec(-3.4, -5.6, -1.2));
+  vector<gvec> points;
+  points.push_back(gvec(1.2, 3.4, 5.6));
+  points.push_back(gvec(-0.2, 13.4, -6.5));
+  points.push_back(gvec(7.7, 4.4, 9.2));
+  points.push_back(gvec(-3.4, -5.6, -1.2));
 
   Tetrahedron t(points);
+}END_TEST
+
+START_TEST(test_point_retrieval_doesnt_leak_memory) {
+  vector<gvec> points;
+  points.push_back(gvec(1.2, 3.4, 5.6));
+  points.push_back(gvec(-0.2, 13.4, -6.5));
+  points.push_back(gvec(7.7, 4.4, 9.2));
+  points.push_back(gvec(-3.4, -5.6, -1.2));
+
+  Tetrahedron t(points);
+
+  memsafe_gvec_list point_cloud = t.point_cloud();
+
+  ck_assert_msg(point_cloud->size() == 5, "unexpected point_cloud length.");
+
+}END_TEST
+
+START_TEST(test_boundary_retrieval_doesnt_leak_memory) {
+  vector<gvec> points;
+  points.push_back(gvec(0.0, 0.0, 0.0));
+  points.push_back(gvec(1.0, 0.0, 0.0));
+  points.push_back(gvec(0.0, 1.0, 0.0));
+  points.push_back(gvec(0.0, 0.0, 1.0));
+
+  Tetrahedron t(points);
+
+  gsphere boundary = t.get_boundary();
+
+  ck_assert_msg(boundary.centre[0] == 0.25 &&
+                boundary.centre[1] == 0.25 &&
+                boundary.centre[2] == 0.25, "incorrect centroid");
+
 }END_TEST
 
 int main(void)
@@ -97,6 +130,8 @@ int main(void)
 
   suite_add_tcase(s1, tc1_1);
   tcase_add_test(tc1_1, test_can_derive_class);
+  tcase_add_test(tc1_1, test_point_retrieval_doesnt_leak_memory);
+  tcase_add_test(tc1_1, test_boundary_retrieval_doesnt_leak_memory);
 
   srunner_run_all(sr, CK_ENV);
   nf = srunner_ntests_failed(sr);

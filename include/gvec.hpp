@@ -20,6 +20,9 @@
 #ifndef __LAYERMESH_GVEC_HPP__
 #define __LAYERMESH_GVEC_HPP__
 
+#include <vector>
+#include <memory>
+
 namespace layermesh {
 
   // gvec = Geometrical Vector (as opposed to std::vector).
@@ -51,6 +54,10 @@ namespace layermesh {
   gvec operator^(const gvec& l, const gvec& r);
 
   double modulus(const gvec& v);
+
+  // aliases for collections of gvec's:
+  typedef std::vector<gvec> gvec_list;
+  typedef std::shared_ptr<std::vector<gvec> > memsafe_gvec_list;
 
   // gsphere
   typedef struct {
