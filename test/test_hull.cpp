@@ -28,6 +28,8 @@ class Tetrahedron : IConvexHull {
   private:
     gvec_list points;
   public:
+    // for the small number of points usually needed to initialise a hull,
+    // a copy constructor for gvec_list would probably do.
     Tetrahedron(gvec_list points) : points(points) {
       if (points.size() != 4) {
         throw invalid_argument("A tetrahedron has four points.");
