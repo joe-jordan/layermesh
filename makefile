@@ -33,6 +33,7 @@ TEST_OBJECTS=build/test/test_gvec.o build/test/test_hull.cpp
 TEST_NAMES=gvec hull mesh
 TEST_PROGRAMS=$(TEST_NAMES:%=build/test/bin/test_%)
 TEST_LINK_LIBRARIES=-lcheck
+TEST_RUNTIME_DEPS=/usr/bin/admesh
 
 build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
@@ -53,11 +54,11 @@ build/test/bin/test_mesh: build/test/test_mesh.o build/gvec.o build/mesh.o
 	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
 
 .PHONY: check
-check: runner build/test/bin $(TEST_PROGRAMS)
+check: runner build/test/bin $(TEST_PROGRAMS) $(TEST_RUNTIME_DEPS)
 	./runner
 
 .PHONY: check-valgrind
-check-valgrind: runner build/test/bin $(TEST_PROGRAMS)
+check-valgrind: runner build/test/bin $(TEST_PROGRAMS) $(TEST_RUNTIME_DEPS)
 	./runner --valgrind
 
 .PHONY: clean
