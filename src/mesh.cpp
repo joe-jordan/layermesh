@@ -20,6 +20,8 @@
 #include <mesh.hpp>
 #include <sstream>
 #include <fstream>
+#include <stdint.h>
+#include <assert.h>
 
 using namespace std;
 
@@ -71,8 +73,57 @@ namespace layermesh {
     f << "endsolid layermesh" << endl;
     f.close();
   }
-  void Mesh::save_binary_stl(string filename) {
 
+  void gvec_binary(char* buffer, gvec v) {
+    // writes 12 bytes (4 * float32) into the buffer.
+    unsigned i;
+    float r;
+    uint32_t* rb = &reinterpret_cast<uint32_t&>(r);
+    uint32_t* buffer32 = reinterpret_cast<uint32_t*>(buffer);
+    for (i = 0; i < 3; ++i) {
+      r = static_cast<float>(v[i]);
+      buffer32[i] = *rb;
+    }
+  }
+
+  void Mesh::save_binary_stl(string filename) {
+    ofstream f(filename.c_str(), ios::out | ios::binary);
+    char a[81] = {'l', 'a', 'y', 'e', 'r', 'm', 'e', 's', 'h'};
+    f.write(a, 80);
+
+    uint32_t num_facets = facets.size();
+    f.write(reinterpret_cast<char*>(&num_facets), 4);
+
+    unsigned facets_written = 0;
+    uint16_t attributes = 0;
+
+    facet_triples::iterator fit = facets.begin();
+    char b[13];
+    for (; fit != facets.end(); ++fit) {
+      gvec o = (*points)[(*fit)[0]];
+      gvec i = (*points)[(*fit)[1]];
+      gvec j = (*points)[(*fit)[2]];
+
+      gvec n = (i - o) ^ (j - o);
+      n = n / layermesh::modulus(n);
+
+      gvec_binary(b, n);
+      f.write(b, 12);
+
+      gvec_binary(b, o);
+      f.write(b, 12);
+
+      gvec_binary(b, i);
+      f.write(b, 12);
+
+      gvec_binary(b, j);
+      f.write(b, 12);
+
+      f.write(reinterpret_cast<char*>(&attributes), 2);
+      ++facets_written;
+    }
+    assert(facets_written == num_facets);
+    f.close();
   }
 
 }

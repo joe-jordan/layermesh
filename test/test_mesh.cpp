@@ -112,6 +112,31 @@ START_TEST(test_can_generate_valid_ascii_stl_file) {
   system("rm foo.stl log.txt");
 } END_TEST
 
+START_TEST(test_can_generate_valid_binary_stl_file) {
+  memsafe_gvec_list points = generate_corner_points();
+
+  facet_triples facets = generate_corner_facets();
+
+  Mesh m(points, facets);
+
+  m.save_stl("foo.stl", true);
+
+  std::ifstream infile("foo.stl");
+  ck_assert_msg(infile.good(), "didn't create a file");
+
+  // use `admesh` to verify the STL file is valid and complete:
+  int admesh_ret = system("admesh -fundev foo.stl > log.txt");
+  ck_assert_msg(admesh_ret == 0, "admesh couldn't verify the generated STL.");
+
+  int grep_ret = system(
+      "grep -E \"File type +?: Binary STL file\" log.txt > /dev/null");
+  ck_assert_msg(grep_ret == 0, "not recognised as an ASCII STL file.");
+
+  ck_assert_admesh_output();
+
+  system("rm foo.stl log.txt");
+} END_TEST
+
 int main(void)
 {
   Suite *s1 = suite_create("savable mesh object");
@@ -122,6 +147,7 @@ int main(void)
   suite_add_tcase(s1, tc1_1);
   tcase_add_test(tc1_1, test_can_instantiate_mesh);
   tcase_add_test(tc1_1, test_can_generate_valid_ascii_stl_file);
+  tcase_add_test(tc1_1, test_can_generate_valid_binary_stl_file);
 
   srunner_run_all(sr, CK_ENV);
   nf = srunner_ntests_failed(sr);
