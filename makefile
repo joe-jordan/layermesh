@@ -32,7 +32,7 @@ TEST_OBJECTS=build/test/test_gvec.o build/test/test_hull.cpp
 
 TEST_NAMES=gvec hull mesh
 TEST_PROGRAMS=$(TEST_NAMES:%=build/test/bin/test_%)
-TEST_LINK_LIBRARIES=-lcheck
+TEST_LINK_LIBRARIES=-lcheck -lrt -lpthread -lsubunit
 TEST_RUNTIME_DEPS=/usr/bin/admesh
 
 build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
