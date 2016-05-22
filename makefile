@@ -30,7 +30,7 @@ compile: build $(OBJECTS)
 TEST_SOURCES=test/test_gvec.cpp test/test_hull.cpp
 TEST_OBJECTS=build/test/test_gvec.o build/test/test_hull.cpp
 
-TEST_NAMES=gvec hull mesh
+TEST_NAMES=gvec hull mesh tetrahedron
 TEST_PROGRAMS=$(TEST_NAMES:%=build/test/bin/test_%)
 TEST_LINK_LIBRARIES=-lcheck -lrt -lpthread -lsubunit
 TEST_RUNTIME_DEPS=/usr/bin/admesh
@@ -44,7 +44,7 @@ build/test/bin/test_gvec: build/test/test_gvec.o build/gvec.o
 build/test/test_hull.o: test/test_hull.cpp include/hull.hpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
 
-build/test/bin/test_hull: build/test/test_hull.o build/gvec.o
+build/test/bin/test_hull: build/test/test_hull.o build/gvec.o build/hull.o
 	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
 
 build/test/test_mesh.o: test/test_mesh.cpp include/mesh.hpp include/gvec.hpp
@@ -52,6 +52,13 @@ build/test/test_mesh.o: test/test_mesh.cpp include/mesh.hpp include/gvec.hpp
 
 build/test/bin/test_mesh: build/test/test_mesh.o build/gvec.o build/mesh.o
 	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
+
+build/test/test_tetrahedron.o: test/test_tetrahedron.cpp include/tetrahedron.hpp include/hull.hpp include/gvec.hpp
+	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
+
+build/test/bin/test_tetrahedron: build/test/test_tetrahedron.o build/gvec.o build/tetrahedron.o build/hull.o
+	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
+
 
 .PHONY: check
 check: runner build/test/bin $(TEST_PROGRAMS) $(TEST_RUNTIME_DEPS)

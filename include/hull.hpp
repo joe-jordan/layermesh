@@ -47,6 +47,12 @@ namespace layermesh {
       // return a gsphere which completely contains the hull, (ideally as small
       // as possible, but an approximation is fine.)
       virtual gsphere get_boundary() = 0;
+      // For rendering TIFFs, if the derived class has a simple geometrical
+      // test for whether it contains a particular point, it is best to
+      // implement it here. Otherwise, the default implementation will be
+      // included (which is slow, and uses tetrahedralisation of the hull
+      // points).
+      virtual bool contains(gvec point);
   };
 
 }
