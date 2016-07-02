@@ -40,10 +40,10 @@ memsafe_gvec_list generate_corner_points() {
 facet_triples generate_corner_facets() {
   facet_triples facets(4);
 
-  facets[0] = {0, 1, 3};
-  facets[1] = {0, 3, 2};
-  facets[2] = {0, 2, 1};
-  facets[3] = {1, 2, 3};
+  facets[0] = {{0, 1, 3}};
+  facets[1] = {{0, 3, 2}};
+  facets[2] = {{0, 2, 1}};
+  facets[3] = {{1, 2, 3}};
 
   return facets;
 }

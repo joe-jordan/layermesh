@@ -37,10 +37,10 @@ void Tetrahedron::compute_normals() {
   // upon by the loop below to reduce indirection, and in contains() to find a
   // point on each facet to use as the origin.
   array<array<unsigned, 3>, 4> facet_indices = {{
-    {0, 1, 2},
-    {1, 0, 3},
-    {2, 0, 3},
-    {3, 2, 1}
+    {{0, 1, 2}},
+    {{1, 0, 3}},
+    {{2, 0, 3}},
+    {{3, 2, 1}}
   }};
 
   unsigned i;

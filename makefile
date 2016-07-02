@@ -32,7 +32,19 @@ TEST_OBJECTS=build/test/test_gvec.o build/test/test_hull.cpp
 
 TEST_NAMES=gvec hull mesh tetrahedron
 TEST_PROGRAMS=$(TEST_NAMES:%=build/test/bin/test_%)
-TEST_LINK_LIBRARIES=-lcheck -lrt -lpthread -lsubunit
+IS_LIBRT_REQUIRED:=$(shell echo "int main() {}" | gcc -x c - -lrt 2>&1)
+ifeq ($(IS_LIBRT_REQUIRED),)
+	TEST_LIBRT:=-lrt
+else
+	TEST_LIBRT:=
+endif
+IS_LIBSUBUNIT_REQUIRED:=$(shell echo "int main() {}" | gcc -x c - -lsubunit 2>&1)
+ifeq ($(IS_LIBSUBUNIT_REQUIRED),)
+	TEST_LIBSUBUNIT:=-lsubunit
+else
+	TEST_LIBSUBUNIT:=
+endif
+TEST_LINK_LIBRARIES=-lcheck $(TEST_LIBRT) -lpthread $(TEST_LIBSUBUNIT)
 TEST_RUNTIME_DEPS=/usr/bin/admesh
 
 build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
