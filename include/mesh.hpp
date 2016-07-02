@@ -22,6 +22,8 @@
 
 #include <gvec.hpp>
 #include <string>
+#include <array>
+#include <vector>
 
 namespace layermesh {
 
