@@ -45,7 +45,12 @@ else
 	TEST_LIBSUBUNIT:=
 endif
 TEST_LINK_LIBRARIES=-lcheck $(TEST_LIBRT) -lpthread $(TEST_LIBSUBUNIT)
-TEST_RUNTIME_DEPS=/usr/bin/admesh
+ADMESH_PATH=$(shell which admesh)
+ifeq ($(ADMESH_PATH),)
+	TEST_RUNTIME_DEPS:=/path/to/admesh/not/found
+else
+	TEST_RUNTIME_DEPS:=$(ADMESH_PATH)
+endif
 
 build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
