@@ -3,7 +3,7 @@ dist: trusty
 language: cpp
 before_install: sudo apt-get update
 install: make get-check-deps
-script: "make check && make clean"
+script: make check
 compiler:
   - clang
   - gcc
