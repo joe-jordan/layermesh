@@ -47,11 +47,12 @@ else
 endif
 TEST_LINK_LIBRARIES=-lcheck $(TEST_LIBRT) -lpthread $(TEST_LIBSUBUNIT)
 
-# rather than simply using `which admesh` as a make dependency and making the
-# user sort it out, we have a go at installing it for them:
+# rather than throwing make errors for missing dependencies and making the
+# user sort it out, we have a go at installing them automatically:
 .PHONY: get-check-deps
 get-check-deps:
-	if [ -z "`which admesh`" ]; then ./try-install-admesh.sh; fi
+	if [ -z "`which admesh`" ]; then ./try-install.sh admesh; fi
+	if [ -z "`shell echo "int main() {}" | gcc -x c - -lcheck 2>&1`" ]; then ./try-install.sh check; fi
 
 build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
