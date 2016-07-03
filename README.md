@@ -1,5 +1,5 @@
 # Layermesh
-*A library for manipulating 3D meshes as set operations on convex objects*
+*A library for manipulating 3D meshes as set operations on convex objects* [![Build Status](https://travis-ci.org/joe-jordan/layermesh.svg?branch=master)](https://travis-ci.org/joe-jordan/layermesh)
 
 
 Layermesh allows you build complicated non-convex 3D meshes by combining convex
