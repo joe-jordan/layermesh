@@ -1,9 +1,13 @@
 .PHONY: default
-default: check
+default: compile
 
 # Compiler options
 LINK_LIBRARIES=
-CC=g++ -std=c++11
+COMPILER=$(CXX)
+ifeq ($(COMPILER),)
+	COMPILER:=g++
+endif
+CC=$(COMPILER) -std=c++11
 CXXFLAGS=-Wall -Werror
 
 # Build directories
@@ -27,9 +31,6 @@ OBJECTS=$(SOURCES:src/%.cpp=build/%.o)
 compile: build $(OBJECTS)
 
 # Unit tests (written out manually because of interdependecy)
-TEST_SOURCES=test/test_gvec.cpp test/test_hull.cpp
-TEST_OBJECTS=build/test/test_gvec.o build/test/test_hull.cpp
-
 TEST_NAMES=gvec hull mesh tetrahedron
 TEST_PROGRAMS=$(TEST_NAMES:%=build/test/bin/test_%)
 IS_LIBRT_REQUIRED:=$(shell echo "int main() {}" | gcc -x c - -lrt 2>&1)
@@ -45,12 +46,12 @@ else
 	TEST_LIBSUBUNIT:=
 endif
 TEST_LINK_LIBRARIES=-lcheck $(TEST_LIBRT) -lpthread $(TEST_LIBSUBUNIT)
-ADMESH_PATH=$(shell which admesh)
-ifeq ($(ADMESH_PATH),)
-	TEST_RUNTIME_DEPS:=/path/to/admesh/not/found
-else
-	TEST_RUNTIME_DEPS:=$(ADMESH_PATH)
-endif
+
+# rather than simply using `which admesh` as a make dependency and making the
+# user sort it out, we have a go at installing it for them:
+.PHONY: get-check-deps
+get-check-deps:
+	if [ -z "`which admesh`" ]; then ./try-install-admesh.sh; fi
 
 build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
@@ -78,7 +79,7 @@ build/test/bin/test_tetrahedron: build/test/test_tetrahedron.o build/gvec.o buil
 
 
 .PHONY: check
-check: runner build/test/bin $(TEST_PROGRAMS) $(TEST_RUNTIME_DEPS)
+check: runner build/test/bin get-check-deps $(TEST_PROGRAMS)
 	./runner
 
 .PHONY: check-valgrind
