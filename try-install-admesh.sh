@@ -1,4 +1,4 @@
-#! /usr/bin/env bash -e
+#! /bin/bash -e
 
 # admesh is used to validate output STL files during unit testing. If you
 # ensure it is installed and on the path, this script won't be run by
