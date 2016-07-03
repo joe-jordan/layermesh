@@ -52,7 +52,7 @@ TEST_LINK_LIBRARIES=-lcheck $(TEST_LIBRT) -lpthread $(TEST_LIBSUBUNIT)
 .PHONY: get-check-deps
 get-check-deps:
 	if [ -z "`which admesh`" ]; then ./try-install.sh admesh; fi
-	if [ -z "`shell echo "int main() {}" | gcc -x c - -lcheck 2>&1`" ]; then ./try-install.sh check; fi
+	if [ -z "`echo "int main() {}" | gcc -x c - -lcheck 2>&1`" ]; then ./try-install.sh check; fi
 
 build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
