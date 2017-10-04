@@ -27,19 +27,14 @@ using namespace std;
 
 namespace layermesh {
 
-  gvec_list Facet::get_vertices() {
-    // return the vector<gvec> by value. 3 struct copies is cheap.
-    return vertices;
-  }
-  gvec Facet::get_normal() {
-    return (vertices[1] - vertices[0]) ^ (vertices[2] - vertices[0]);
-  }
-
-  void Mesh::save_stl(string filename, bool binary) {
+  void Mesh::save_stl_inner(std::string filename,
+                            bool binary,
+                            const memsafe_gvec_list& points,
+                            const facet_triples& facets) {
     if (binary)
-      save_binary_stl(filename);
+      save_binary_stl(filename, points, facets);
     else
-      save_ascii_stl(filename);
+      save_ascii_stl(filename, points, facets);
   }
 
   string gvec_ascii(gvec v) {
@@ -50,10 +45,12 @@ namespace layermesh {
     return s.str();
   }
 
-  void Mesh::save_ascii_stl(string filename) {
+  void Mesh::save_ascii_stl(string filename,
+                            const memsafe_gvec_list& points,
+                            const facet_triples& facets) {
     ofstream f(filename.c_str());
     f << "solid layermesh" << endl;
-    facet_triples::iterator fit = facets.begin();
+    facet_triples::const_iterator fit = facets.begin();
     for (; fit != facets.end(); ++fit) {
       gvec o = (*points)[(*fit)[0]];
       gvec i = (*points)[(*fit)[1]];
@@ -86,7 +83,9 @@ namespace layermesh {
     }
   }
 
-  void Mesh::save_binary_stl(string filename) {
+  void Mesh::save_binary_stl(string filename,
+                             const memsafe_gvec_list& points,
+                             const facet_triples& facets) {
     ofstream f(filename.c_str(), ios::out | ios::binary);
     char a[81] = {'l', 'a', 'y', 'e', 'r', 'm', 'e', 's', 'h'};
     f.write(a, 80);
@@ -97,7 +96,7 @@ namespace layermesh {
     unsigned facets_written = 0;
     uint16_t attributes = 0;
 
-    facet_triples::iterator fit = facets.begin();
+    facet_triples::const_iterator fit = facets.begin();
     char b[13];
     for (; fit != facets.end(); ++fit) {
       gvec o = (*points)[(*fit)[0]];

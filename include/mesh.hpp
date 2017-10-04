@@ -35,27 +35,23 @@ namespace layermesh {
   typedef std::array<unsigned,3> facet_triple;
   typedef std::vector<facet_triple> facet_triples;
 
-  class Facet {
-    private:
-      gvec_list vertices;
-    public:
-      gvec_list get_vertices();
-      gvec get_normal();
-  };
-
-  typedef std::shared_ptr<std::vector<Facet> > memsafe_facet_list;
-
   class Mesh {
     private:
-      memsafe_gvec_list points;
-      facet_triples facets;
-      void save_ascii_stl(std::string filename);
-      void save_binary_stl(std::string filename);
+      void save_ascii_stl(std::string filename,
+                          const memsafe_gvec_list& points,
+                          const facet_triples& facets);
+      void save_binary_stl(std::string filename,
+                          const memsafe_gvec_list& points,
+                          const facet_triples& facets);
+    protected:
+      void save_stl_inner(std::string filename,
+                          bool binary,
+                          const memsafe_gvec_list& points,
+                          const facet_triples& facets);
     public:
-      Mesh(memsafe_gvec_list points, facet_triples facets) :
-        points(points), facets(facets) {};
-      ~Mesh() {};
-      void save_stl(std::string filename, bool binary = true);
+      virtual ~Mesh() {};
+      /* subclasses should implement this method by calling save_stl_inner. */
+      virtual void save_stl(std::string filename, bool binary = true) = 0;
   };
 
 }

@@ -26,34 +26,45 @@
 using namespace std;
 using namespace layermesh;
 
-memsafe_gvec_list generate_corner_points() {
-  memsafe_gvec_list points = make_shared<gvec_list>();
+/* inherit from abstract base class Mesh with simple tetrahedron implementation: */
 
-  points->push_back(gvec(0.0, 0.0, 0.0));
-  points->push_back(gvec(1.0, 0.0, 0.0));
-  points->push_back(gvec(0.0, 1.0, 0.0));
-  points->push_back(gvec(0.0, 0.0, 1.0));
+namespace notlayermesh {
 
-  return points;
-}
+  memsafe_gvec_list generate_corner_points() {
+    memsafe_gvec_list points = make_shared<gvec_list>();
 
-facet_triples generate_corner_facets() {
-  facet_triples facets(4);
+    points->push_back(gvec(0.0, 0.0, 0.0));
+    points->push_back(gvec(1.0, 0.0, 0.0));
+    points->push_back(gvec(0.0, 1.0, 0.0));
+    points->push_back(gvec(0.0, 0.0, 1.0));
 
-  facets[0] = {{0, 1, 3}};
-  facets[1] = {{0, 3, 2}};
-  facets[2] = {{0, 2, 1}};
-  facets[3] = {{1, 2, 3}};
+    return points;
+  }
 
-  return facets;
+  facet_triples generate_corner_facets() {
+    facet_triples facets(4);
+
+    facets[0] = {{0, 1, 3}};
+    facets[1] = {{0, 3, 2}};
+    facets[2] = {{0, 2, 1}};
+    facets[3] = {{1, 2, 3}};
+
+    return facets;
+  }
+
+  class Tetrahedron : layermesh::Mesh {
+    public:
+      virtual ~Tetrahedron() {};
+      virtual void save_stl(std::string filename, bool binary) {
+        auto points = generate_corner_points();
+        auto facets = generate_corner_facets();
+        save_stl_inner(filename, binary, points, facets);
+      }
+  };
 }
 
 START_TEST(test_can_instantiate_mesh) {
-  memsafe_gvec_list points = generate_corner_points();
-
-  facet_triples facets = generate_corner_facets();
-
-  Mesh m(points, facets);
+  notlayermesh::Tetrahedron t;
 } END_TEST
 
 void ck_assert_admesh_output() {
@@ -88,13 +99,9 @@ void ck_assert_admesh_output() {
 }
 
 START_TEST(test_can_generate_valid_ascii_stl_file) {
-  memsafe_gvec_list points = generate_corner_points();
+  notlayermesh::Tetrahedron t;
 
-  facet_triples facets = generate_corner_facets();
-
-  Mesh m(points, facets);
-
-  m.save_stl("foo.stl", false);
+  t.save_stl("foo.stl", false);
 
   std::ifstream infile("foo.stl");
   ck_assert_msg(infile.good(), "didn't create a file");
@@ -113,13 +120,9 @@ START_TEST(test_can_generate_valid_ascii_stl_file) {
 } END_TEST
 
 START_TEST(test_can_generate_valid_binary_stl_file) {
-  memsafe_gvec_list points = generate_corner_points();
+  notlayermesh::Tetrahedron t;
 
-  facet_triples facets = generate_corner_facets();
-
-  Mesh m(points, facets);
-
-  m.save_stl("foo.stl", true);
+  t.save_stl("foo.stl", true);
 
   std::ifstream infile("foo.stl");
   ck_assert_msg(infile.good(), "didn't create a file");
