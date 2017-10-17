@@ -31,7 +31,7 @@ OBJECTS=$(SOURCES:src/%.cpp=build/%.o)
 compile: build $(OBJECTS)
 
 # Unit tests (written out manually because of interdependecy)
-TEST_NAMES=gvec hull mesh tetrahedron
+TEST_NAMES=gvec atom mesh tetrahedron
 TEST_PROGRAMS=$(TEST_NAMES:%=build/test/bin/test_%)
 IS_LIBRT_REQUIRED:=$(shell echo "int main() {}" | gcc -x c - -lrt 2>&1)
 ifeq ($(IS_LIBRT_REQUIRED),)
@@ -45,14 +45,14 @@ ifeq ($(IS_LIBSUBUNIT_REQUIRED),)
 else
 	TEST_LIBSUBUNIT:=
 endif
-TEST_LINK_LIBRARIES=-lcheck $(TEST_LIBRT) -lpthread $(TEST_LIBSUBUNIT)
+TEST_LINK_LIBRARIES=-lgtest $(TEST_LIBRT) -lpthread $(TEST_LIBSUBUNIT)
 
 # rather than throwing make errors for missing dependencies and making the
 # user sort it out, we have a go at installing them automatically:
 .PHONY: get-check-deps
 get-check-deps:
 	if [ -z "`which admesh`" ]; then ./try-install.sh admesh; fi
-	if [ -n "`echo "int main() {}" | gcc -x c - -lcheck 2>&1`" ]; then ./try-install.sh check; fi
+	if [ -n "`echo "int main() {}" | gcc -x c - -lgtest 2>&1`" ]; then ./try-install.sh libgtest-dev; fi
 
 build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
@@ -60,10 +60,10 @@ build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
 build/test/bin/test_gvec: build/test/test_gvec.o build/gvec.o
 	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
 
-build/test/test_hull.o: test/test_hull.cpp include/hull.hpp include/gvec.hpp
+build/test/test_atom.o: test/test_atom.cpp include/atom.hpp include/mesh.hpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
 
-build/test/bin/test_hull: build/test/test_hull.o build/gvec.o build/hull.o
+build/test/bin/test_atom: build/test/test_atom.o build/gvec.o build/atom.o build/mesh.o
 	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
 
 build/test/test_mesh.o: test/test_mesh.cpp include/mesh.hpp include/gvec.hpp
@@ -72,10 +72,10 @@ build/test/test_mesh.o: test/test_mesh.cpp include/mesh.hpp include/gvec.hpp
 build/test/bin/test_mesh: build/test/test_mesh.o build/gvec.o build/mesh.o
 	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
 
-build/test/test_tetrahedron.o: test/test_tetrahedron.cpp include/tetrahedron.hpp include/hull.hpp include/gvec.hpp
+build/test/test_tetrahedron.o: test/test_tetrahedron.cpp include/tetrahedron.hpp include/atom.hpp include/gvec.hpp include/mesh.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
 
-build/test/bin/test_tetrahedron: build/test/test_tetrahedron.o build/gvec.o build/tetrahedron.o build/hull.o
+build/test/bin/test_tetrahedron: build/test/test_tetrahedron.o build/gvec.o build/tetrahedron.o build/atom.o build/mesh.o
 	$(CC) -o $@ $^ $(TEST_LINK_LIBRARIES)
 
 

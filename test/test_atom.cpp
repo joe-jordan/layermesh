@@ -18,13 +18,13 @@
  */
 
 #include <stdexcept>
-#include <check.h>
-#include <hull.hpp>
+#include <gtest/gtest.h>
+#include <atom.hpp>
 
 using namespace std;
 using namespace layermesh;
 
-class Tetrahedron : IConvexHull {
+class Tetrahedron : Atom {
   private:
     gvec_list points;
   public:
@@ -37,7 +37,7 @@ class Tetrahedron : IConvexHull {
     };
     virtual ~Tetrahedron() {};
     virtual memsafe_gvec_list point_cloud();
-    virtual unsigned internal_points_start_index();
+    virtual unsigned internal_points_start_index() const;
     virtual gsphere get_boundary();
 };
 
@@ -58,7 +58,7 @@ memsafe_gvec_list Tetrahedron::point_cloud() {
   return point_cloud;
 }
 
-unsigned Tetrahedron::internal_points_start_index() {
+unsigned Tetrahedron::internal_points_start_index() const {
   return 4;
 }
 
@@ -81,7 +81,7 @@ gsphere Tetrahedron::get_boundary() {
   return ret;
 }
 
-START_TEST(test_can_derive_class) {
+TEST(Atom, can_derive_class) {
   vector<gvec> points;
   points.push_back(gvec(1.2, 3.4, 5.6));
   points.push_back(gvec(-0.2, 13.4, -6.5));
@@ -89,9 +89,9 @@ START_TEST(test_can_derive_class) {
   points.push_back(gvec(-3.4, -5.6, -1.2));
 
   Tetrahedron t(points);
-}END_TEST
+}
 
-START_TEST(test_point_retrieval_doesnt_leak_memory) {
+TEST(Atom, point_retrieval_doesnt_leak_memory) {
   vector<gvec> points;
   points.push_back(gvec(1.2, 3.4, 5.6));
   points.push_back(gvec(-0.2, 13.4, -6.5));
@@ -102,11 +102,11 @@ START_TEST(test_point_retrieval_doesnt_leak_memory) {
 
   memsafe_gvec_list point_cloud = t.point_cloud();
 
-  ck_assert_msg(point_cloud->size() == 5, "unexpected point_cloud length.");
+  EXPECT_EQ(point_cloud->size(), 5) << "unexpected point_cloud length.";
 
-}END_TEST
+}
 
-START_TEST(test_boundary_retrieval_doesnt_leak_memory) {
+TEST(Atom, boundary_retrieval_doesnt_leak_memory) {
   vector<gvec> points;
   points.push_back(gvec(0.0, 0.0, 0.0));
   points.push_back(gvec(1.0, 0.0, 0.0));
@@ -117,28 +117,14 @@ START_TEST(test_boundary_retrieval_doesnt_leak_memory) {
 
   gsphere boundary = t.get_boundary();
 
-  ck_assert_msg(boundary.centre[0] == 0.25 &&
-                boundary.centre[1] == 0.25 &&
-                boundary.centre[2] == 0.25, "incorrect centroid");
+  EXPECT_EQ(boundary.centre[0], 0.25) << "incorrect centroid X";
+  EXPECT_EQ(boundary.centre[1], 0.25) << "incorrect centroid Y";
+  EXPECT_EQ(boundary.centre[2], 0.25) << "incorrect centroid Z";
 
-}END_TEST
+}
 
-int main(void)
-{
-  Suite *s1 = suite_create("abstract class IConvexHull test");
-  TCase *tc1_1 = tcase_create("all");
-  SRunner *sr = srunner_create(s1);
-  int nf;
-
-  suite_add_tcase(s1, tc1_1);
-  tcase_add_test(tc1_1, test_can_derive_class);
-  tcase_add_test(tc1_1, test_point_retrieval_doesnt_leak_memory);
-  tcase_add_test(tc1_1, test_boundary_retrieval_doesnt_leak_memory);
-
-  srunner_run_all(sr, CK_ENV);
-  nf = srunner_ntests_failed(sr);
-  srunner_free(sr);
-
-  return nf == 0 ? 0 : 1;
+int main(int argc, char** argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
 

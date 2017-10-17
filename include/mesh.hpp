@@ -38,16 +38,16 @@ namespace layermesh {
   class Mesh {
     private:
       void save_ascii_stl(std::string filename,
-                          const memsafe_gvec_list& points,
+                          const gvec_list& points,
                           const facet_triples& facets);
       void save_binary_stl(std::string filename,
-                          const memsafe_gvec_list& points,
+                          const gvec_list& points,
                           const facet_triples& facets);
     protected:
-      void save_stl_inner(std::string filename,
-                          bool binary,
-                          const memsafe_gvec_list& points,
-                          const facet_triples& facets);
+      virtual void save_stl_inner(std::string filename,
+                                  bool binary,
+                                  const gvec_list& points,
+                                  const facet_triples& facets);
     public:
       virtual ~Mesh() {};
       /* subclasses should implement this method by calling save_stl_inner. */

@@ -32,7 +32,7 @@ void Tetrahedron::compute_centroid() {
   centroid = centroid / 4.0;
 }
 
-void Tetrahedron::compute_normals() {
+void Tetrahedron::compute_normals_and_triples() {
   // Notice that index 0 of each inner array == outer index. This is relied
   // upon by the loop below to reduce indirection, and in contains() to find a
   // point on each facet to use as the origin.
@@ -52,11 +52,18 @@ void Tetrahedron::compute_normals() {
     double proj = normal * (centroid - points[i]);
     if (proj > 0.0) {
       normal = normal * -1.0;
+      // We also swap the indices, to make sure they satisfy:
+      // normal = (v1 - v0) ^ (v2 - v0)
+      // (where the normal points from the solid phase to the void.)
+      unsigned tmp = js[2];
+      js[2] = js[1];
+      js[1] = tmp;
     }
 
     normal = normal / layermesh::modulus(normal);
 
     facet_normals.push_back(normal);
+    _facet_triples.push_back(js);
   }
 }
 
@@ -64,7 +71,7 @@ memsafe_gvec_list Tetrahedron::point_cloud() {
   return make_shared<gvec_list>(points);
 }
 
-unsigned Tetrahedron::internal_points_start_index() {
+unsigned Tetrahedron::internal_points_start_index() const {
   return 4;
 }
 
@@ -88,7 +95,7 @@ gsphere Tetrahedron::get_boundary() {
 
 bool Tetrahedron::contains(gvec point) {
   if (facet_normals.size() == 0) {
-    compute_normals();
+    compute_normals_and_triples();
   }
 
   bool contained = true;
@@ -104,6 +111,14 @@ bool Tetrahedron::contains(gvec point) {
   }
 
   return contained;
+}
+
+void Tetrahedron::save_stl(std::string filename, bool binary) {
+  if (_facet_triples.size() == 0) {
+    compute_normals_and_triples();
+  }
+
+  save_stl_inner(filename, binary, points, _facet_triples);
 }
 
 

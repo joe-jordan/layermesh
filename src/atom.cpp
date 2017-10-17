@@ -17,8 +17,13 @@
  * along with Layermesh.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <hull.hpp>
+#include <atom.hpp>
 
-bool layermesh::IConvexHull::contains(layermesh::gvec point) {
+bool layermesh::Atom::contains(layermesh::gvec point) {
   return false;
 }
+
+void layermesh::Atom::save_stl(std::string filename, bool binary = true) {
+}
+
+
