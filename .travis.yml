@@ -5,7 +5,7 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install -y libgtest-dev cmake
   - pushd /usr/src/gtest
-  - sudo cmake CMakeLists.txt -DCMAKE_CXX_COMPILER=`which $CXX`
+  - sudo cmake CMakeLists.txt -DCMAKE_C_COMPILER=`which $CC` -DCMAKE_CXX_COMPILER=`which $CXX`
   - sudo make
   - sudo cp *.a /usr/lib/
   - popd
