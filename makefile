@@ -53,6 +53,7 @@ TEST_LINK_LIBRARIES=-lgtest $(TEST_LIBRT) -lpthread $(TEST_LIBSUBUNIT)
 get-check-deps:
 	if [ -z "`which admesh`" ]; then ./try-install.sh admesh; fi
 	if [ -n "`echo "int main() {}" | gcc -x c - -lgtest 2>&1`" ]; then ./try-install.sh libgtest-dev; fi
+	rm a.out || true
 
 build/test/test_gvec.o: test/test_gvec.cpp include/gvec.hpp
 	$(CC) -I./include/ -c $(CXXFLAGS) $(TESTFLAGS) $< -o $@
