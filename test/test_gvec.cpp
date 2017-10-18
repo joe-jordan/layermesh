@@ -53,12 +53,20 @@ TEST(gvec, test_plus_minus) {
   EXPECT_EQ(c[1], 0.0) << "cannot subtract vectors.";
   EXPECT_EQ(c[2], 2.0) << "cannot subtract vectors.";
 
+  c = -a;
+
+  EXPECT_EQ(a[0], -c[0]) << "cannot negate vectors.";
+  EXPECT_EQ(a[1], -c[1]) << "cannot negate vectors.";
+  EXPECT_EQ(a[2], -c[2]) << "cannot negate vectors.";
+
+
   EXPECT_EQ(a[0], 0.0) << "addition or subtraction mutates instances.";
   EXPECT_EQ(a[1], 1.0) << "addition or subtraction mutates instances.";
   EXPECT_EQ(a[2], 2.0) << "addition or subtraction mutates instances.";
   EXPECT_EQ(b[0], 2.0) << "addition or subtraction mutates instances.";
   EXPECT_EQ(b[1], 1.0) << "addition or subtraction mutates instances.";
   EXPECT_EQ(b[2], 0.0) << "addition or subtraction mutates instances.";
+
 }
 
 TEST(gvec, test_scaling) {
@@ -113,6 +121,16 @@ TEST(gvec, test_modulus) {
 #define epsilon 0.00000000000001
 
 TEST(gvec, test_algebraic_expressions) {
+  // backwards subtraction:
+  layermesh::gvec x(1., 0., 0.);
+  layermesh::gvec y(0., 1., 0.);
+
+  auto f = -y + x;
+
+  EXPECT_EQ(f[0], 1.) << "cannot reverse subtraction order.";
+  EXPECT_EQ(f[1], -1.) << "cannot reverse subtraction order.";
+  EXPECT_EQ(f[2], 0.) << "cannot reverse subtraction order.";
+
   // projection of a vector onto a normal:
   layermesh::gvec normal(1.0, 0.0, 0.0);
   layermesh::gvec to_project(13.745, 101.3, -17.2);

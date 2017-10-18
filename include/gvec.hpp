@@ -42,6 +42,9 @@ namespace layermesh {
   gvec operator+(const gvec& l, const gvec& r);
   gvec operator-(const gvec& l, const gvec& r);
 
+  // negation:
+  gvec operator-(const gvec&r);
+
   // scaling:
   gvec operator*(double l, const gvec& r);
   gvec operator*(const gvec& l, double r);

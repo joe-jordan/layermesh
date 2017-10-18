@@ -60,6 +60,11 @@ namespace layermesh {
     return t;
   }
 
+  // negation:
+  gvec operator-(const gvec& r) {
+    return gvec(0., 0., 0.) - r;
+  }
+
   // scaling:
   gvec operator*(double l, const gvec& r) {
     gvec t;
