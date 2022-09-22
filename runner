@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.7
+#! /usr/bin/env python
 
 import glob, os, os.path, sys
 
@@ -28,9 +28,9 @@ for test, passed in run:
         failures.append(test)
 
 if failures:
-    print "FAILED TESTS:\n" + "\n".join(failures)
+    print("FAILED TESTS:\n" + "\n".join(failures))
 
-print "%s passed tests" % successes
+print(f"{successes} passed tests")
 
 exit(len(failures))
 
