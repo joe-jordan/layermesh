@@ -1,3 +1,5 @@
+Please check out [OpenSCAD](https://github.com/openscad/openscad), which does very well what LayerMesh wanted to do.
+
 # Layermesh
 *A library for manipulating 3D meshes as set operations on convex objects* [![Build Status](https://travis-ci.org/joe-jordan/layermesh.svg?branch=master)](https://travis-ci.org/joe-jordan/layermesh)
 
@@ -7,8 +9,8 @@ objects, and export the resultant mesh as an STL or TIFF file for 3D printing.
 
 Layermesh is currently in development.
 It is written in C++, and built on CGAL, the
-[http://www.cgal.org/](Computational Geometry Algorithms Library,)
+[Computational Geometry Algorithms Library,](http://www.cgal.org/)
 specifically on its
-[http://doc.cgal.org/latest/Manual/packages.html#PkgTriangulation3Summary](Triangulation
-3D) module, which is licensed under GPLv3 (and therefore so is this project.)
+[Triangulation
+3D](http://doc.cgal.org/latest/Manual/packages.html#PkgTriangulation3Summary) module, which is licensed under GPLv3 (and therefore so is this project.)
 
